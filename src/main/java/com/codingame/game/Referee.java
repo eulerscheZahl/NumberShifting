@@ -1,37 +1,54 @@
 package com.codingame.game;
+import java.util.ArrayList;
 import java.util.List;
 
+import NumberShifting.NumberShifting;
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.AbstractReferee;
-import com.codingame.gameengine.core.MultiplayerGameManager;
+import com.codingame.gameengine.core.SoloGameManager;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.google.inject.Inject;
 
 public class Referee extends AbstractReferee {
-    // Uncomment the line below and comment the line under it to create a Solo Game
-    // @Inject private SoloGameManager<Player> gameManager;
-    @Inject private MultiplayerGameManager<Player> gameManager;
-    @Inject private GraphicEntityModule graphicEntityModule;
+    @Inject
+    private SoloGameManager<Player> gameManager;
+    @Inject
+    private GraphicEntityModule graphicEntityModule;
+
+    NumberShifting shifting;
 
     @Override
     public void init() {
-        // Initialize your game here.
     }
 
     @Override
     public void gameTurn(int turn) {
-        for (Player player : gameManager.getActivePlayers()) {
-            player.sendInputLine("input");
-            player.execute();
+        Player player = gameManager.getPlayer();
+        if (turn == 2) {
+            for (String s : shifting.exportMap()) {
+                player.sendInputLine(s);
+            }
+        }
+        player.execute();
+
+        try {
+            List<String> outputs = player.getOutputs();
+            if (turn == 1) {
+                shifting = new NumberShifting(outputs.get(0));
+                shifting.drawBoard(graphicEntityModule);
+            } else shifting.apply(outputs.get(0));
+        } catch (TimeoutException e) {
+            gameManager.loseGame("timeout");
+        } catch (Exception e) {
+            gameManager.loseGame("invalid command");
         }
 
-        for (Player player : gameManager.getActivePlayers()) {
-            try {
-                List<String> outputs = player.getOutputs();
-                // Check validity of the player output and compute the new game state
-            } catch (TimeoutException e) {
-                player.deactivate(String.format("$%d timeout!", player.getIndex()));
-            }
-        }        
+        if (shifting.solved()) {
+            gameManager.putMetadata("Level", String.valueOf(shifting.getLevel()));
+            gameManager.addToGameSummary("Code for next level: " + shifting.nextLevel());
+            for (String line : new NumberShifting("").exportMap())
+                gameManager.addToGameSummary(line);
+            gameManager.winGame();
+        }
     }
 }

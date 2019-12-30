@@ -1,0 +1,10 @@
+write ssxvnjhpdqdxvcrastvybcwvmgnykrxv
+
+read width:int height:int
+loop height loopline width val:int
+
+write 3 3 L -
+      4 4 U +
+      0 1 U +
+      0 2 R -
+      0 0 D -

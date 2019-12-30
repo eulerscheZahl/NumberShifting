@@ -5,5 +5,5 @@
 	},
 	"testIn": "test content",
 	"isTest": "true",
-	"isValidator": "false"
+	"isValidator": "true"
 }
