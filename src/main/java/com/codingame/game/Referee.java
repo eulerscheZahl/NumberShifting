@@ -19,6 +19,7 @@ public class Referee extends AbstractReferee {
 
     @Override
     public void init() {
+        graphicEntityModule.createRectangle().setWidth(1920).setHeight(1080).setFillColor(0x333333);
     }
 
     @Override

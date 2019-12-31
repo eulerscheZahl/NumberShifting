@@ -4,7 +4,7 @@ public class Agent1 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("ssxvnjhpdqdxvcrastvybcwvmgnykrxv");
+        System.out.println("first_level");
 
         int width = scanner.nextInt();
         int height = scanner.nextInt();
@@ -13,10 +13,9 @@ public class Agent1 {
                 int val = scanner.nextInt();
             }
         }
-        System.out.println("3 3 L -");
-        System.out.println("4 4 U +");
-        System.out.println("0 1 U +");
-        System.out.println("0 2 R -");
-        System.out.println("0 0 D -");
+
+        System.out.println("1 4 R -");
+        System.out.println("5 2 D -");
+        System.out.println("5 4 U -");
     }
 }
