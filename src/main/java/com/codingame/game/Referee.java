@@ -45,9 +45,9 @@ public class Referee extends AbstractReferee {
         }
 
         if (shifting.solved()) {
-            gameManager.putMetadata("Level", String.valueOf(shifting.getLevel()));
+            gameManager.putMetadata("Level", String.valueOf(shifting.getLevel() + 1));
             gameManager.addToGameSummary("Code for next level: " + shifting.nextLevel());
-            for (String line : new NumberShifting("").exportMap())
+            for (String line : new NumberShifting(shifting.getLevel() + 1).exportMap())
                 gameManager.addToGameSummary(line);
             gameManager.winGame();
         }

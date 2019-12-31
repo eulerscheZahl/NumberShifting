@@ -13,7 +13,7 @@ public class NumberShifting {
     private int height;
     private int level;
     private int[][] grid;
-    private static long seed = 0; // seed is different in online version
+    private static long seed = 1; // seed is different in online version
     private static String[] levelPasswords = new String[1000];
 
     static {
@@ -33,18 +33,23 @@ public class NumberShifting {
     String[] dirs = {"D", "R", "U", "L"};
 
     public NumberShifting(String pass) {
-        if (pass.equals("")) level++;
-        else {
-            while (!levelPasswords[level].equals(pass)) level++;
-        }
+        while (!levelPasswords[level].equals(pass)) level++;
+        createMap();
+    }
+
+    public NumberShifting(int level) {
+        this.level = level;
+        createMap();
+    }
+
+    private void createMap() {
         this.height = 5 + (int) (0.2 * Math.sqrt(level));
-        this.width = this.height*16/9;
+        this.width = this.height * 16 / 9;
         this.grid = new int[width][height];
 
-        Random random = new Random(seed);
-        for (int i = 0; i < level; i++) random.nextInt();
+        Random random = new Random(seed ^ level);
 
-        int spawns = (int) Math.pow(width, 1.5 * (1 - Math.exp(-0.03 * level)));
+        int spawns = (int) Math.pow(width, 0.5 + (1 - Math.exp(-0.05 * level)));
         if (spawns < 3) spawns = 3;
         ArrayList<String> solution = new ArrayList<>();
         for (int i = 0; i < spawns; i++) {
@@ -88,12 +93,11 @@ public class NumberShifting {
                     }
                 }
             }
-
-            //for (String s : exportMap())
-            //    System.err.println(s);
-            //System.err.println(solution.get(solution.size()-1));
-            //System.err.println("---------");
         }
+        System.err.println("level: " + level);
+        System.err.println(levelPasswords[level]);
+        for (String s : exportMap())
+            System.err.println(s);
         for (int i = solution.size() - 1; i >= 0; i--) {
             System.err.println(solution.get(i));
         }
@@ -118,7 +122,7 @@ public class NumberShifting {
         int w = (int) (cellSize / 12);
         Group group = graphics.createGroup().setZIndex(2).setX((int) cellSize - 3 * w).setY(-w);
         group.add(graphics.createRectangle().setWidth(4 * w).setHeight(4 * w).setFillColor(0xbbddbb).setLineColor(0).setLineWidth(2));
-        group.add(graphics.createText(parts[3]).setAnchor(0.5).setX(2*w).setY(2*w).setFontSize(8*w/3));
+        group.add(graphics.createText(parts[3]).setAnchor(0.5).setX(2 * w).setY(2 * w).setFontSize(8 * w / 3));
         gridNumbers[x2][y2].add(group);
         graphics.commitWorldState(0);
 
@@ -131,7 +135,7 @@ public class NumberShifting {
     }
 
     public int getLevel() {
-        return level + 1;
+        return level;
     }
 
     public String nextLevel() {
@@ -170,8 +174,8 @@ public class NumberShifting {
         gridNumbers = new Group[width][height];
         gridTexts = new Text[width][height];
         cellSize = 1040.0 / height;
-        Group group = graphics.createGroup().setX((1920-(int)(cellSize*width))/2).setY(20);
-        group.add(graphics.createRectangle().setFillColor(0xbbbbdd).setWidth((int)(cellSize*width)).setHeight(1040));
+        Group group = graphics.createGroup().setX((1920 - (int) (cellSize * width)) / 2).setY(20);
+        group.add(graphics.createRectangle().setFillColor(0xbbbbdd).setWidth((int) (cellSize * width)).setHeight(1040));
         for (int x = 0; x <= width; x++) {
             group.add(graphics.createLine().setX((int) (x * cellSize)).setX2((int) (x * cellSize)).setY(0).setY2((int) (height * cellSize)).setFillColor(0xaaaac0).setLineWidth(1));
         }
