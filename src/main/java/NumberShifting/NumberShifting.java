@@ -13,10 +13,14 @@ public class NumberShifting {
     private int height;
     private int level;
     private int[][] grid;
-    private static long seed = 1; // seed is different in online version
+    private static long seed; // seed is different in online version
     private static String[] levelPasswords = new String[1000];
 
-    static {
+    public static void setSeed(long seed) {
+        NumberShifting.seed = seed;
+    }
+
+    public static void createPasswords() {
         Random random = new Random(seed);
         for (int i = 0; i < 1000; i++) {
             String pass = "";
@@ -43,14 +47,18 @@ public class NumberShifting {
     }
 
     private void createMap() {
-        this.height = 5 + (int) (0.2 * Math.sqrt(level));
-        this.width = this.height * 16 / 9;
-        this.grid = new int[width][height];
-
         Random random = new Random(seed ^ level);
 
-        int spawns = (int) Math.pow(width, 0.5 + (1 - Math.exp(-0.05 * level)));
-        if (spawns < 3) spawns = 3;
+        int spawns = 3 + level / 2;
+        height = 5;
+        width = height * 16 / 9;
+        while (width * height < spawns * 2) {
+            spawns -= 2;
+            height++;
+            width = height * 16 / 9;
+        }
+        grid = new int[width][height];
+
         ArrayList<String> solution = new ArrayList<>();
         for (int i = 0; i < spawns; i++) {
             if (i == 0 || random.nextInt(5) == 0) {
@@ -103,15 +111,15 @@ public class NumberShifting {
         }
     }
 
-    public void apply(String action) {
-        String[] parts = action.split(" ");
-        int x = Integer.parseInt(parts[0]);
-        int y = Integer.parseInt(parts[1]);
-        int dir = "DRUL".indexOf(parts[2]);
-        boolean add = parts[3].equals("+");
+    public void apply(int x, int y, String dirText, String action) {
+        int dir = "DRUL".indexOf(dirText);
+        boolean add = action.equals("+");
         int x2 = x + dx[dir] * grid[x][y];
         int y2 = y + dy[dir] * grid[x][y];
-        if (grid[x][y] == 0 || grid[x2][y2] == 0) throw new IllegalArgumentException("source or target cell empty");
+        if (x < 0 || x >= width || y < 0 || y >= height) throw new IllegalArgumentException("source cell is not inside the grid");
+        if (x2 < 0 || x2 >= width || y2 < 0 || y2 >= height) throw new IllegalArgumentException("target cell is not inside the grid");
+        if (grid[x][y] == 0) throw new IllegalArgumentException("source cell empty");
+        if (grid[x2][y2] == 0) throw new IllegalArgumentException("target cell empty");
         if (add) grid[x2][y2] += grid[x][y];
         else grid[x2][y2] -= grid[x][y];
         grid[x][y] = 0;
@@ -122,7 +130,7 @@ public class NumberShifting {
         int w = (int) (cellSize / 12);
         Group group = graphics.createGroup().setZIndex(2).setX((int) cellSize - 3 * w).setY(-w);
         group.add(graphics.createRectangle().setWidth(4 * w).setHeight(4 * w).setFillColor(0xbbddbb).setLineColor(0).setLineWidth(2));
-        group.add(graphics.createText(parts[3]).setAnchor(0.5).setX(2 * w).setY(2 * w).setFontSize(8 * w / 3));
+        group.add(graphics.createText(action).setAnchor(0.5).setX(2 * w).setY(2 * w).setFontSize(8 * w / 3));
         gridNumbers[x2][y2].add(group);
         graphics.commitWorldState(0);
 

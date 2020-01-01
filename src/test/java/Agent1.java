@@ -14,8 +14,8 @@ public class Agent1 {
             }
         }
 
-        System.out.println("4 1 D -");
-        System.out.println("0 3 R +");
-        System.out.println("1 3 R -");
+        System.out.println("2 2 U +");
+        System.out.println("7 3 L -");
+        System.out.println("2 4 U -");
     }
 }
