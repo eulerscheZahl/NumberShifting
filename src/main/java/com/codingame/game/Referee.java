@@ -57,8 +57,11 @@ public class Referee extends AbstractReferee {
             }
         } catch (TimeoutException e) {
             gameManager.loseGame("timeout");
+            return;
         } catch (Exception e) {
-            gameManager.loseGame(e.getMessage());
+            if (turn == 1) gameManager.loseGame("Invalid level code");
+            else gameManager.loseGame(e.getMessage());
+            return;
         }
 
         if (shifting.solved()) {

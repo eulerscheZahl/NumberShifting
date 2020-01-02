@@ -200,5 +200,6 @@ public class NumberShifting {
                 gridNumbers[x][y].add(gridTexts[x][y]);
             }
         }
+        graphics.commitWorldState(0);
     }
 }

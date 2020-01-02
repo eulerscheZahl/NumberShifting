@@ -10,7 +10,7 @@ public class Agent1 {
         int height = scanner.nextInt();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                int val = scanner.nextInt();
+                int cell = scanner.nextInt();
             }
         }
 

@@ -1,7 +1,7 @@
 write first_level
 
 read width:int height:int
-loop height loopline width val:int
+loop height loopline width cell:int
 
 write 2 2 U +
       7 3 L -
