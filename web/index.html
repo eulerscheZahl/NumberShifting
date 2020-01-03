@@ -1,0 +1,235 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Number Shifting</title>
+</head>
+  <script src="pixi.min.js"></script>
+<body>
+  Level: <input id="level" style="width:40px" value="1"> <button onclick="loadUserlevel()">load</button> <button onclick="showLevel()">restart</button> <br><br>
+  <div id="canvas"/>
+</body>
+
+<script>
+class MovingNumber {
+  constructor(x, y, value, graphics) {
+    this.x = x;
+    this.y = y;
+    this.value = value;
+    this.graphics = graphics;
+    this.options = [];
+    graphics.interactive = true;
+    graphics.hitArea = new PIXI.Rectangle(x*cellSize, y*cellSize, cellSize, cellSize);
+    graphics.click = (ev) => { this.highlight(true); }
+  }
+
+  highlight(toggleSelection) {
+    for (var i = 0; i < this.options.length; i++) container.removeChild(this.options[i]);
+    this.options = [];
+    if (this.value == 0) {
+      container.removeChild(this.graphics);
+      const index = numbers.indexOf(this);
+      if (index > -1) {
+        numbers.splice(index, 1);
+      }
+      return;
+    }
+    if (toggleSelection) {
+      if (this == selectedNumber) selectedNumber = null;
+      else {
+        if (selectedNumber != null) selectedNumber.highlight(true);
+        selectedNumber = this;
+      }
+    }
+
+    var text = this.graphics.children[0];
+    container.removeChild(this.graphics);
+    this.graphics = createRectangle(this.x*cellSize, this.y*cellSize, cellSize, this == selectedNumber ? 0xaaaadd : 0xddddff);
+    this.graphics.interactive = true;
+    this.graphics.hitArea = new PIXI.Rectangle(this.x*cellSize, this.y*cellSize, cellSize, cellSize);
+    this.graphics.addChild(text);
+    this.graphics.click = (ev) => { this.highlight(true); }
+    container.addChild(this.graphics);
+
+    if (this == selectedNumber) {
+      for (var i = 0; i < numbers.length; i++) {
+        let num = numbers[i];
+        let dx = this.x - num.x;
+        let dy = this.y - num.y;
+        if (dx*dy != 0 || Math.abs(dx+dy) != this.value) continue;
+
+        for (var action = 0; action <= 1; action++) {
+          var option = new PIXI.Graphics();
+          option.beginFill(0xbbddbb);
+          option.lineStyle(3, 0x1d1d2d);
+          option.drawRect(num.x*cellSize, num.y*cellSize + action*cellSize/4, cellSize/4, cellSize/4);
+          let text = new PIXI.Text(["+","-"][action], {fontSize: cellSize/6, fill : 0x00000, align : 'center'});
+          text.anchor.set(0.5);
+          text.position.x = (num.x+1/8) * cellSize;
+          text.position.y = (num.y+1/8 + action/4) * cellSize;
+          option.addChild(text);
+          option.interactive = true;
+          option.hitArea = new PIXI.Rectangle(num.x*cellSize, num.y*cellSize + action*cellSize/4, cellSize/4, cellSize/4);
+          let a = action;
+          option.click = (ev) => { this.moveTo(num, a == 0); }
+          option.zIndex = 1;
+          this.options.push(option);
+          container.addChild(option);
+        }
+      }
+    }
+  }
+
+  moveTo(num, add) {
+    if (add) num.value += this.value;
+    else num.value = Math.abs(num.value - this.value);
+    num.graphics.children[0].text = num.value;
+    this.value = 0;
+    this.highlight(true);
+    num.highlight(false);
+  }
+}
+
+let app = new PIXI.Application({width: 1600, height: 900, antialias: true});
+let stage = app.stage;
+stage.interactive = true;
+app.renderer.backgroundColor = 0x333333;
+document.getElementById('canvas').appendChild(app.view);
+
+function update(){
+	//requestAnimFrame(update);
+	app.renderer.render(stage);
+};
+update();
+
+let dx = [0, 1, 0, -1];
+let dy = [1, 0, -1, 0];
+let dirs = ["D", "R", "U", "L"];
+
+var width;
+var height;
+var grid;
+var solution;
+var numbers;
+var cellSize;
+var container;
+var selectedNumber;
+
+function randomInt(upper) { return Math.floor(Math.random() * upper); }
+
+function loadUserlevel() { loadLevel(parseInt(document.getElementById('level').value)); }
+
+function loadLevel(level) {
+  var spawns = Math.floor(3 + level / 2);
+  height = 5;
+  width = Math.floor(height * 16 / 9);
+  while (width * height < spawns * 2) {
+      spawns -= 2;
+      height++;
+      width = Math.floor(height * 16 / 9);
+  }
+  grid = new Array(width);
+  for (var i = 0; i < width; i++) grid[i] = new Array(height).fill(0);
+
+  solution = [];
+  for (var i = 0; i < spawns; i++) {
+      if (i == 0 || randomInt(5) == 0) {
+          // find pair of empty cells
+          while (true) {
+              let x1 = randomInt(width);
+              let y1 = randomInt(height);
+              let dir = randomInt(4);
+              let length = 1 + randomInt(width);
+              let x2 = x1 - length * dx[dir];
+              let y2 = y1 - length * dy[dir];
+              if (x2 >= 0 && x2 < width && y2 >= 0 && y2 < height && grid[x1][y1] == 0 && grid[x2][y2] == 0) {
+                  grid[x1][y1] = length;
+                  grid[x2][y2] = length;
+                  solution.push(x2 + " " + y2 + " " + dirs[dir] + " -");
+                  break;
+              }
+          }
+      } else {
+          // split number
+          while (true) {
+              let x1 = randomInt(width);
+              let y1 = randomInt(height);
+              let dir = randomInt(4);
+              let length = 1 + randomInt(width);
+              let x2 = x1 - length * dx[dir];
+              let y2 = y1 - length * dy[dir];
+              let add = randomInt(2) == 1;
+              if (x2 >= 0 && x2 < width && y2 >= 0 && y2 < height && grid[x1][y1] != 0 && grid[x1][y1] != length && grid[x2][y2] == 0) {
+                  grid[x2][y2] = length;
+                  if (add) grid[x1][y1] -= length;
+                  else grid[x1][y1] += length;
+                  if (grid[x1][y1] < 0) {
+                      grid[x1][y1] = -grid[x1][y1];
+                      add = !add;
+                  }
+                  if (add) solution.push(x2 + " " + y2 + " " + dirs[dir] + " +");
+                  else solution.push(x2 + " " + y2 + " " + dirs[dir] + " -");
+                  break;
+              }
+          }
+      }
+  }
+  showLevel();
+}
+
+function showLevel() {
+  selectedNumber = null;
+  stage.removeChildren();
+  cellSize = Math.min((app.view.width-40)/width, (app.view.height-40)/height);
+  container = new PIXI.Container();
+  container.position.x = (app.view.width - (cellSize * width)) / 2;
+  container.position.y = (app.view.height - (cellSize * height)) / 2;
+  var background = new PIXI.Graphics();
+  background.beginFill(0xbbbbdd);
+  background.drawRect(0, 0, cellSize * width, cellSize * height);
+  container.addChild(background)
+  for (var x = 0; x <= width; x++) {
+    var line = new PIXI.Graphics();
+    line.lineStyle(1, 0xaaaac0).moveTo(x*cellSize, 0).lineTo(x*cellSize, height*cellSize);
+    container.addChild(line);
+  }
+  for (var y = 0; y <= height; y++) {
+    var line = new PIXI.Graphics();
+    line.lineStyle(1, 0xaaaac0).moveTo(0, y*cellSize).lineTo(width*cellSize, y*cellSize);
+    container.addChild(line);
+  }
+
+  numbers = []
+  for (var x = 0; x < width; x++) {
+    for (var y = 0; y < height; y++) {
+      if (grid[x][y] > 0) {
+        var number = createNumber(x, y, cellSize, grid[x][y]);
+        container.addChild(number.graphics);
+        numbers.push(number);
+      }
+    }
+  }
+  stage.addChild(container);
+}
+
+function createNumber(x, y, size, value) {
+  var graphics = createRectangle(x*size, y*size, size, 0xddddff)
+  let text = new PIXI.Text(value, {fontSize: size*2/3, fill : 0x00000, align : 'center'});
+  text.anchor.set(0.5);
+  text.position.x = (x+0.5) * size;
+  text.position.y = (y+0.5) * size;
+  graphics.addChild(text);
+  return new MovingNumber(x, y, value, graphics);
+}
+
+function createRectangle(x, y, size, color) {
+  var graphics = new PIXI.Graphics();
+  graphics.beginFill(color);
+  graphics.lineStyle(5, 0x1d1d2d);
+  graphics.drawRect(x, y, size, size);
+  return graphics;
+}
+
+loadLevel(1);
+</script>
+</html>
