@@ -185,10 +185,10 @@ public class NumberShifting {
         Group group = graphics.createGroup().setX((1920 - (int) (cellSize * width)) / 2).setY(20);
         group.add(graphics.createRectangle().setFillColor(0xbbbbdd).setWidth((int) (cellSize * width)).setHeight(1040));
         for (int x = 0; x <= width; x++) {
-            group.add(graphics.createLine().setX((int) (x * cellSize)).setX2((int) (x * cellSize)).setY(0).setY2((int) (height * cellSize)).setFillColor(0xaaaac0).setLineWidth(1));
+            group.add(graphics.createLine().setX((int) (x * cellSize)).setX2((int) (x * cellSize)).setY(0).setY2((int) (height * cellSize)).setLineColor(0xaaaac0).setLineWidth(1));
         }
         for (int y = 0; y <= height; y++) {
-            group.add(graphics.createLine().setY((int) (y * cellSize)).setY2((int) (y * cellSize)).setX(0).setX2((int) (width * cellSize)).setFillColor(0xaaaac0).setLineWidth(1));
+            group.add(graphics.createLine().setY((int) (y * cellSize)).setY2((int) (y * cellSize)).setX(0).setX2((int) (width * cellSize)).setLineColor(0xaaaac0).setLineWidth(1));
         }
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
