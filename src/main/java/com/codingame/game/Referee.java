@@ -29,6 +29,7 @@ public class Referee extends AbstractReferee {
     }
 
     NumberShifting shifting;
+
     @Override
     public void gameTurn(int turn) {
         Player player = gameManager.getPlayer();
@@ -52,7 +53,7 @@ public class Referee extends AbstractReferee {
                     int y = Integer.parseInt(match.group("y"));
                     String dir = match.group("dir").toUpperCase();
                     String action = match.group("action").toUpperCase();
-                    shifting.apply(x,y,dir,action);
+                    shifting.apply(x, y, dir, action);
                 } else throw new Exception("invalid command: " + outputs.get(0));
             }
         } catch (TimeoutException e) {
@@ -66,7 +67,7 @@ public class Referee extends AbstractReferee {
 
         if (shifting.solved()) {
             gameManager.putMetadata("Level", String.valueOf(shifting.getLevel() + 1));
-            gameManager.addToGameSummary("Code for next level: " + shifting.nextLevel());
+            gameManager.addToGameSummary("Code for next level (level " + (shifting.getLevel() + 2) + "): " + shifting.nextLevel());
             for (String line : new NumberShifting(shifting.getLevel() + 1).exportMap())
                 gameManager.addToGameSummary(line);
             gameManager.winGame();
