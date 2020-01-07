@@ -24,16 +24,20 @@ public class Referee extends AbstractReferee {
     public void init() {
         graphicEntityModule.createRectangle().setWidth(1920).setHeight(1080).setFillColor(0x333333);
         gameManager.setFrameDuration(1);
+        gameManager.setMaxTurns(600);
         NumberShifting.setSeed(Long.parseLong(gameManager.getTestCaseInput().get(0)));
         NumberShifting.createPasswords();
     }
 
-    NumberShifting shifting;
+    private NumberShifting shifting;
+    private int lastSolve;
 
     @Override
     public void gameTurn(int turn) {
+        int realTurn = turn;
+        turn -= lastSolve;
         Player player = gameManager.getPlayer();
-        if (turn == 2) {
+        if (realTurn == 2 || turn == 1 && shifting != null) {
             gameManager.setFrameDuration(1000);
             for (String s : shifting.exportMap()) {
                 player.sendInputLine(s);
@@ -43,10 +47,16 @@ public class Referee extends AbstractReferee {
 
         try {
             List<String> outputs = player.getOutputs();
+            boolean playTurn = true;
             if (turn == 1) {
-                shifting = new NumberShifting(outputs.get(0));
+                if (shifting == null) {
+                    shifting = new NumberShifting(outputs.get(0));
+                    playTurn = false;
+                }
                 shifting.drawBoard(graphicEntityModule);
-            } else {
+            }
+            if (playTurn) {
+                gameManager.setTurnMaxTime(50);
                 Matcher match = PLAYER_PATTERN.matcher(outputs.get(0));
                 if (match.matches()) {
                     int x = Integer.parseInt(match.group("x"));
@@ -57,10 +67,12 @@ public class Referee extends AbstractReferee {
                 } else throw new Exception("invalid command: " + outputs.get(0));
             }
         } catch (TimeoutException e) {
-            gameManager.loseGame("timeout");
+            if (lastSolve != 0) gameManager.winGame();
+            else gameManager.loseGame("timeout");
             return;
         } catch (Exception e) {
-            if (turn == 1) gameManager.loseGame("Invalid level code");
+            if (lastSolve != 0) gameManager.winGame();
+            else if (turn == 1) gameManager.loseGame("Invalid level code");
             else gameManager.loseGame(e.getMessage());
             return;
         }
@@ -68,9 +80,12 @@ public class Referee extends AbstractReferee {
         if (shifting.solved()) {
             gameManager.putMetadata("Level", String.valueOf(shifting.getLevel() + 1));
             gameManager.addToGameSummary("Code for next level (level " + (shifting.getLevel() + 2) + "): " + shifting.nextLevel());
-            for (String line : new NumberShifting(shifting.getLevel() + 1).exportMap())
+            shifting = new NumberShifting(shifting.getLevel() + 1);
+            for (String line : shifting.exportMap())
                 gameManager.addToGameSummary(line);
-            gameManager.winGame();
+            gameManager.setTurnMaxTime(800);
+            lastSolve = realTurn;
+            graphicEntityModule.createRectangle().setWidth(1920).setHeight(1080).setFillColor(0x333333);
         }
     }
 }

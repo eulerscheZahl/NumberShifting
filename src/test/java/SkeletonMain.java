@@ -8,7 +8,7 @@ public class SkeletonMain {
         gameRunner.setAgent(Agent1.class);
 
         // Another way to add a player
-        // gameRunner.addAgent("python3 /home/user/player.py");
+        //gameRunner.setAgent("mono /home/eulerschezahl/Documents/Programming/challenges/CodinGame/NumberShifting/NumberShifting/bin/Debug/NumberShifting.exe");
 
         gameRunner.start();
     }
