@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 email = 'my@email.com'
 password = 'password_for_CodinGame'
@@ -9,18 +9,14 @@ import io
 import requests
 import subprocess
 
-# login to CodinGame and get submit ID
 session = requests.Session()
-session.post('https://www.codingame.com/services/Codingamer/loginSiteV2', json=[email, password, True])
+r = session.post('https://www.codingame.com/services/Codingamer/loginSiteV2', json=[email, password, True])
+userId = r.json()['codinGamer']['userId']
 
-# TODO when approved:
-# use https://www.codingame.com/services/Puzzle/generateSessionFromPuzzlePrettyId
-r = session.post('https://www.codingame.com/services/PredefinedTest/generateSessionFromTestHandle', json=['8344035e21eef48e0b0973bf53304b1122ee76'])
+r = session.post('https://www.codingame.com/services/Puzzle/generateSessionFromPuzzlePrettyId', json=[userId, "number-shifting", False])
 handle = r.json()['handle']
 
-# for each level of the game
 while True:
-	# run the solver on level.txt and save output to solution.txt
 	subprocess.run(program_execute + " < level.txt > solution.txt", shell=True)
 	with open('level_password.txt', 'r') as f:
 		level_pass = f.read().strip()
@@ -31,18 +27,16 @@ while True:
 		f.write('\nsolution:\n')
 		f.write(solution)
 	
-	# submit the solution to CodinGame
 	r = session.post('https://www.codingame.com/services/TestSession/play', json=[handle, {'code':solution, 'programmingLanguageId':'PHP', 'multipleLanguages':{'testIndex':1}}])
 	print('replay: https://www.codingame.com/replay/' + str(r.json()['gameId']))
 	next_level = ''
-	if 'gameInformation' in r.json()['frames'][-1]:
-		next_level = r.json()['frames'][-1]['gameInformation']
+	if 'gameInformation' in r.json()['frames'][-2]:
+		next_level = r.json()['frames'][-2]['gameInformation']
 	if not 'Code for next level' in next_level:
 		print('The solution was wrong, watch the replay for details')
 		break
 	next_level = next_level[next_level.find(':')+2:]
 
-	# save input for next level
 	with open('level_password.txt', 'w') as f:
 		f.write(next_level.split('\n')[0])
 	with open('level.txt', 'w') as f:
