@@ -3,7 +3,7 @@
 		"2": "Number shifting",
 		"1": "Number shifting"
 	},
-	"testIn": "0",
+	"testIn": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
 	"isTest": "true",
 	"isValidator": "true"
 }
