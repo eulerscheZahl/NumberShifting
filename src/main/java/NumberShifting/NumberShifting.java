@@ -5,7 +5,9 @@ import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Group;
 import com.codingame.gameengine.module.entities.Text;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class NumberShifting {
@@ -13,15 +15,15 @@ public class NumberShifting {
     private int height;
     private int level;
     private int[][] grid;
-    private static long seed; // seed is different in online version
+    private static byte[] seed; // seed is different in online version
     private static String[] levelPasswords = new String[1000];
 
-    public static void setSeed(long seed) {
+    public static void setSeed(byte[] seed) {
         NumberShifting.seed = seed;
     }
 
     public static void createPasswords() {
-        Random random = new Random(seed);
+        SecureRandom random = new SecureRandom(seed);
         for (int i = 0; i < 1000; i++) {
             String pass = "";
             for (int x = 0; x < 32; x++) {
@@ -47,7 +49,11 @@ public class NumberShifting {
     }
 
     private void createMap() {
-        Random random = new Random(seed ^ level);
+        byte[] levelSeed =Arrays.copyOf(seed, seed.length);
+        levelSeed[0] ^= level & 0xff;
+        levelSeed[1] ^= (level>>8) & 0xff;
+
+        SecureRandom random = new SecureRandom(levelSeed);
 
         int spawns = 3 + level / 2;
         height = 5;
