@@ -1,4 +1,5 @@
 package com.codingame.game;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +26,12 @@ public class Referee extends AbstractReferee {
         graphicEntityModule.createRectangle().setWidth(1920).setHeight(1080).setFillColor(0x333333);
         gameManager.setFrameDuration(1);
         gameManager.setMaxTurns(600);
-        NumberShifting.setSeed(Long.parseLong(gameManager.getTestCaseInput().get(0)));
+        String[] seedText = gameManager.getTestCaseInput().get(0).split(",");
+        byte[] seed = new byte[seedText.length];
+        for (int i = 0; i < seed.length; i++) {
+            seed[i] = Byte.parseByte(seedText[i]);
+        }
+        NumberShifting.setSeed(seed);
         NumberShifting.createPasswords();
     }
 
