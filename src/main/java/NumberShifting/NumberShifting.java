@@ -5,6 +5,8 @@ import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Group;
 import com.codingame.gameengine.module.entities.Text;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,8 +24,9 @@ public class NumberShifting {
         NumberShifting.seed = seed;
     }
 
-    public static void createPasswords() {
-        SecureRandom random = new SecureRandom(seed);
+    public static void createPasswords() throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        random.setSeed(seed);
         for (int i = 0; i < 1000; i++) {
             String pass = "";
             for (int x = 0; x < 32; x++) {
@@ -38,22 +41,23 @@ public class NumberShifting {
     int[] dy = {1, 0, -1, 0};
     String[] dirs = {"D", "R", "U", "L"};
 
-    public NumberShifting(String pass) {
+    public NumberShifting(String pass) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         while (!levelPasswords[level].equals(pass)) level++;
         createMap();
     }
 
-    public NumberShifting(int level) {
+    public NumberShifting(int level) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         this.level = level;
         createMap();
     }
 
-    private void createMap() {
-        byte[] levelSeed =Arrays.copyOf(seed, seed.length);
+    private void createMap() throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        byte[] levelSeed = Arrays.copyOf(seed, seed.length);
         levelSeed[0] ^= level & 0xff;
-        levelSeed[1] ^= (level>>8) & 0xff;
+        levelSeed[1] ^= (level >> 8) & 0xff;
 
-        SecureRandom random = new SecureRandom(levelSeed);
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        random.setSeed(levelSeed);
 
         int spawns = 3 + level / 2;
         height = 5;

@@ -32,7 +32,11 @@ public class Referee extends AbstractReferee {
             seed[i] = Byte.parseByte(seedText[i]);
         }
         NumberShifting.setSeed(seed);
-        NumberShifting.createPasswords();
+        try {
+            NumberShifting.createPasswords();
+        } catch (Exception ex) {
+            // crypto failed? we will all die
+        }
     }
 
     private NumberShifting shifting;
@@ -86,7 +90,11 @@ public class Referee extends AbstractReferee {
         if (shifting.solved()) {
             gameManager.putMetadata("Level", String.valueOf(shifting.getLevel() + 1));
             gameManager.addToGameSummary("Code for next level (level " + (shifting.getLevel() + 2) + "): " + shifting.nextLevel());
-            shifting = new NumberShifting(shifting.getLevel() + 1);
+            try {
+                shifting = new NumberShifting(shifting.getLevel() + 1);
+            } catch (Exception ex) {
+                // worked before, will work now
+            }
             for (String line : shifting.exportMap())
                 gameManager.addToGameSummary(line);
             gameManager.setTurnMaxTime(800);

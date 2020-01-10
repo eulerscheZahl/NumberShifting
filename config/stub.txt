@@ -5,6 +5,6 @@ gameloop
 read width:int height:int
 loop height loopline width cell:int
 
-write 2 2 U +
-      7 3 L -
-      2 4 U -
+write 7 4 L +
+      3 0 D -
+      6 4 L -
