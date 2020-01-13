@@ -60,6 +60,7 @@ public class NumberShifting {
         random.setSeed(levelSeed);
 
         int spawns = 3 + level / 2;
+        if (level > 150) spawns = 3 + level - 75;
         height = 5;
         width = height * 16 / 9;
         while (width * height < spawns * 2) {
@@ -135,6 +136,8 @@ public class NumberShifting {
         grid[x][y] = 0;
         grid[x2][y2] = Math.abs(grid[x2][y2]);
 
+        if (level >= 200) return;
+
         gridNumbers[x][y].setZIndex(2);
         gridNumbers[x2][y2].setZIndex(1);
         int w = (int) (cellSize / 12);
@@ -188,6 +191,11 @@ public class NumberShifting {
     private static double cellSize;
 
     public void drawBoard(GraphicEntityModule graphics) {
+        if (level >= 200) {
+            graphics.createText("Replays aren't shown\nfor higher levels").setX(100).setY(200).setFontSize(100);
+            return;
+        }
+
         this.graphics = graphics;
         gridNumbers = new Group[width][height];
         gridTexts = new Text[width][height];
