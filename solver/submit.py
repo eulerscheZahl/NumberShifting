@@ -25,7 +25,8 @@ handle = r.json()['handle']
 # for each level of the game
 while True:
 	# run the solver on level.txt and save output to solution.txt
-	subprocess.run(program_execute + " < level.txt > solution.txt", shell=False)
+	# for Windows: set shell=False, if solution file isn't updated
+	subprocess.run(program_execute + " < level.txt > solution.txt", shell=True)
 	with open('level_password.txt', 'r') as f:
 		level_pass = f.read().strip()
 	with open('solution.txt', 'r') as f:
