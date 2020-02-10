@@ -67,5 +67,5 @@ while True:
 	with open('log.txt', 'a') as f:
 		f.write('\nreplay: https://www.codingame.com/replay/' + str(r.json()['gameId']))
 		f.write('\n\nLevel ' + str(number_level) + ':\n')
-		f.write(level_password)
+		f.write(level_password + '\n')
 		f.write(level_input)
