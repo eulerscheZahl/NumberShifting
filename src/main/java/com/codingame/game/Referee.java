@@ -53,6 +53,8 @@ public class Referee extends AbstractReferee {
                 player.sendInputLine(s);
             }
         }
+        player.lineCount = 1;
+        if (turn > 1 && shifting.getLevel() > 200 && shifting.remaining() > 2) player.lineCount = 2;
         player.execute();
 
         try {
@@ -67,14 +69,16 @@ public class Referee extends AbstractReferee {
             }
             if (playTurn) {
                 gameManager.setTurnMaxTime(50);
-                Matcher match = PLAYER_PATTERN.matcher(outputs.get(0));
-                if (match.matches()) {
-                    int x = Integer.parseInt(match.group("x"));
-                    int y = Integer.parseInt(match.group("y"));
-                    String dir = match.group("dir").toUpperCase();
-                    String action = match.group("action").toUpperCase();
-                    shifting.apply(x, y, dir, action);
-                } else throw new Exception("invalid command: " + outputs.get(0));
+                for (String output : outputs) {
+                    Matcher match = PLAYER_PATTERN.matcher(output);
+                    if (match.matches()) {
+                        int x = Integer.parseInt(match.group("x"));
+                        int y = Integer.parseInt(match.group("y"));
+                        String dir = match.group("dir").toUpperCase();
+                        String action = match.group("action").toUpperCase();
+                        shifting.apply(x, y, dir, action);
+                    } else throw new Exception("invalid command: " + output);
+                }
             }
         } catch (TimeoutException e) {
             if (lastSolve != 0) gameManager.winGame();

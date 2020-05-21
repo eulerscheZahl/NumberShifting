@@ -71,6 +71,8 @@ public class NumberShifting {
         grid = new int[width][height];
 
         ArrayList<String> solution = new ArrayList<>();
+        ArrayList<String> dot = new ArrayList<>();
+        dot.add("digraph {");
         for (int i = 0; i < spawns; i++) {
             if (i == 0 || random.nextInt(5) == 0) {
                 // find pair of empty cells
@@ -85,6 +87,7 @@ public class NumberShifting {
                         grid[x1][y1] = length;
                         grid[x2][y2] = length;
                         solution.add(x2 + " " + y2 + " " + dirs[dir] + " -");
+                        dot.add("\""+x1+"_"+y1+"\" -> \"" + x2+"_"+y2+"\"");
                         break;
                     }
                 }
@@ -108,11 +111,13 @@ public class NumberShifting {
                         }
                         if (add) solution.add(x2 + " " + y2 + " " + dirs[dir] + " +");
                         else solution.add(x2 + " " + y2 + " " + dirs[dir] + " -");
+                        dot.add("\""+x1+"_"+y1+"\" -> \"" + x2+"_"+y2+"\"");
                         break;
                     }
                 }
             }
         }
+        dot.add("}");
         System.err.println("level: " + level);
         System.err.println(levelPasswords[level]);
         for (String s : exportMap())
@@ -120,6 +125,7 @@ public class NumberShifting {
         for (int i = solution.size() - 1; i >= 0; i--) {
             System.err.println(solution.get(i));
         }
+        //for (String s : dot) System.err.println(s);
     }
 
     public void apply(int x, int y, String dirText, String action) {
@@ -161,6 +167,16 @@ public class NumberShifting {
 
     public String nextLevel() {
         return levelPasswords[level + 1];
+    }
+
+    public int remaining() {
+        int result = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (grid[x][y] != 0) result++;
+            }
+        }
+        return result;
     }
 
     public boolean solved() {
