@@ -7,17 +7,9 @@ import io
 import requests
 import subprocess
 
-#put your email on a text file named cg_email.txt
-with open('cg_email.txt', 'r') as f:
-	email = f.read().strip()
-#put your password on a text file named cg_pass.txt
-with open('cg_pass.txt', 'r') as f:
-	password = f.read().strip()
-
-# login to CodinGame and get submit ID
 session = requests.Session()
-r = session.post('https://www.codingame.com/services/Codingamer/loginSiteV2', json=[email, password, True])
-userId = r.json()['codinGamer']['userId']
+session.cookies.set('rememberMe', '01234567-0123-0123-0123-0123456789ab', domain='codingame.com') # change the cookie value, see https://github.com/s-vivien/CGBenchmark#how-to-grab-your-accounts-rememberme
+userId = 1500515 # change your userId as needed
 
 r = session.post('https://www.codingame.com/services/Puzzle/generateSessionFromPuzzlePrettyId', json=[userId, "number-shifting", False])
 handle = r.json()['handle']
